@@ -1,0 +1,42 @@
+CREATE TABLE IF NOT EXISTS `assignments` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `tenant_id` bigint(20) unsigned NOT NULL,
+  `course_id` bigint(20) unsigned NOT NULL,
+  `created_by` bigint(20) unsigned DEFAULT NULL,
+  `title` varchar(255) NOT NULL,
+  `description` text DEFAULT NULL,
+  `due_date` datetime DEFAULT NULL,
+  `max_points` decimal(8,2) NOT NULL DEFAULT 100.00,
+  `status` enum('draft','published','archived') NOT NULL DEFAULT 'published',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `idx_assignments_tenant_course` (`tenant_id`,`course_id`),
+  KEY `fk_assignments_created_by` (`created_by`),
+  CONSTRAINT `fk_assignments_course` FOREIGN KEY (`course_id`) REFERENCES `courses` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_assignments_tenant` FOREIGN KEY (`tenant_id`) REFERENCES `tenants` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_assignments_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE IF NOT EXISTS `assignment_submissions` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `tenant_id` bigint(20) unsigned NOT NULL,
+  `assignment_id` bigint(20) unsigned NOT NULL,
+  `student_id` bigint(20) unsigned NOT NULL,
+  `file_path` varchar(500) NOT NULL,
+  `original_name` varchar(255) NOT NULL,
+  `mime_type` varchar(150) DEFAULT NULL,
+  `file_size` bigint(20) unsigned DEFAULT NULL,
+  `notes` text DEFAULT NULL,
+  `status` enum('submitted','reviewed','returned') NOT NULL DEFAULT 'submitted',
+  `grade` decimal(8,2) DEFAULT NULL,
+  `feedback` text DEFAULT NULL,
+  `submitted_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `reviewed_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_assignment_student` (`assignment_id`,`student_id`),
+  KEY `idx_submissions_tenant_student` (`tenant_id`,`student_id`),
+  CONSTRAINT `fk_submissions_assignment` FOREIGN KEY (`assignment_id`) REFERENCES `assignments` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_submissions_tenant` FOREIGN KEY (`tenant_id`) REFERENCES `tenants` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_submissions_student` FOREIGN KEY (`student_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;

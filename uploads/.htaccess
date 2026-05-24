@@ -1,0 +1,12 @@
+Options -Indexes
+
+<FilesMatch "\.(php|phtml|phar|cgi|pl|asp|aspx|jsp)$">
+    Require all denied
+</FilesMatch>
+
+<IfModule mod_headers.c>
+    <FilesMatch "\.(html|htm|svg)$">
+        Header set Content-Disposition "attachment"
+        Header set X-Content-Type-Options "nosniff"
+    </FilesMatch>
+</IfModule>
