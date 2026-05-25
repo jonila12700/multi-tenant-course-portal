@@ -27,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_assignment']))
     $course_id = (int) ($_POST['course_id'] ?? 0);
     $title = trim($_POST['title'] ?? '');
     $description = trim($_POST['description'] ?? '');
-    $due_date = $_POST['due_date'] !== '' ? $_POST['due_date'] : null;
+    $due_date = ($_POST['due_date'] ?? '') !== '' ? $_POST['due_date'] : null;
     $max_points = (float) ($_POST['max_points'] ?? 100);
     $status = $_POST['status'] ?? 'published';
 
@@ -60,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['change_status'])) {
     if (!in_array($status, ['draft', 'published', 'archived'], true)) {
         $error = 'Invalid assignment status.';
     } else {
-        $stmt = $pdo->prepare("UPDATE assignments INNER JOIN courses ON courses.id = assignments.course_id SET assignments.status = ? WHERE assignments.id = ? AND assignments.tenant_id = ? AND courses.instructor_id = ?");
+        $stmt = $pdo->prepare("UPDATE assignments INNER JOIN courses ON courses.id = assignments.course_id AND courses.tenant_id = assignments.tenant_id SET assignments.status = ? WHERE assignments.id = ? AND assignments.tenant_id = ? AND courses.instructor_id = ?");
         $stmt->execute([$status, $assignment_id, $tenant_id, $instructor_id]);
         $success = 'Assignment status updated.';
     }
@@ -75,7 +75,9 @@ $stmt = $pdo->prepare("
             AND assignment_submissions.tenant_id = assignments.tenant_id
         ) AS submission_count
     FROM assignments
-    INNER JOIN courses ON courses.id = assignments.course_id
+    INNER JOIN courses
+        ON courses.id = assignments.course_id
+        AND courses.tenant_id = assignments.tenant_id
     WHERE assignments.tenant_id = ?
     AND courses.instructor_id = ?
     ORDER BY assignments.created_at DESC

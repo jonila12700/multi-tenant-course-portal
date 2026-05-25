@@ -30,7 +30,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['change_visibility']))
     } else {
         $stmt = $pdo->prepare("
             UPDATE resources
-            INNER JOIN courses ON courses.id = resources.course_id
+            INNER JOIN courses
+                ON courses.id = resources.course_id
+                AND courses.tenant_id = resources.tenant_id
             SET resources.visibility = ?
             WHERE resources.id = ?
             AND resources.tenant_id = ?
@@ -54,7 +56,9 @@ $stmt = $pdo->prepare("
         resources.created_at,
         courses.title AS course_title
     FROM resources
-    INNER JOIN courses ON courses.id = resources.course_id
+    INNER JOIN courses
+        ON courses.id = resources.course_id
+        AND courses.tenant_id = resources.tenant_id
     WHERE resources.tenant_id = ?
     AND courses.instructor_id = ?
     ORDER BY resources.created_at DESC

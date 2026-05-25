@@ -29,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_quiz'])) {
     $option_b = trim($_POST['option_b'] ?? '');
     $option_c = trim($_POST['option_c'] ?? '');
     $option_d = trim($_POST['option_d'] ?? '');
-    $correct_option = $_POST['correct_option'] ?: null;
+    $correct_option = ($_POST['correct_option'] ?? '') !== '' ? $_POST['correct_option'] : null;
     $allowed_options = ['A', 'B', 'C', 'D'];
 
     if ($course_id <= 0 || $question === '' || $option_a === '' || $option_b === '') {
@@ -83,7 +83,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['close_quiz'])) {
 
     $stmt = $pdo->prepare("
         UPDATE live_quizzes
-        INNER JOIN courses ON courses.id = live_quizzes.course_id
+        INNER JOIN courses
+            ON courses.id = live_quizzes.course_id
+            AND courses.tenant_id = live_quizzes.tenant_id
         SET live_quizzes.status = 'closed'
         WHERE live_quizzes.id = ?
         AND live_quizzes.tenant_id = ?
@@ -98,7 +100,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['close_quiz'])) {
 $stmt = $pdo->prepare("
     SELECT live_quizzes.*, courses.title AS course_title
     FROM live_quizzes
-    INNER JOIN courses ON courses.id = live_quizzes.course_id
+    INNER JOIN courses
+        ON courses.id = live_quizzes.course_id
+        AND courses.tenant_id = live_quizzes.tenant_id
     WHERE live_quizzes.tenant_id = ?
     AND courses.instructor_id = ?
     ORDER BY live_quizzes.created_at DESC

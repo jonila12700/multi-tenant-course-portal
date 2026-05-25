@@ -60,7 +60,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_announcement']
 $stmt = $pdo->prepare("
     SELECT course_announcements.*, courses.title AS course_title
     FROM course_announcements
-    INNER JOIN courses ON courses.id = course_announcements.course_id
+    INNER JOIN courses
+        ON courses.id = course_announcements.course_id
+        AND courses.tenant_id = course_announcements.tenant_id
     WHERE course_announcements.tenant_id = ?
     AND courses.instructor_id = ?
     ORDER BY course_announcements.created_at DESC

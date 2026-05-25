@@ -17,12 +17,15 @@ $stmt = $pdo->prepare("
     FROM courses
     LEFT JOIN resources
         ON resources.course_id = courses.id
+        AND resources.tenant_id = courses.tenant_id
         AND resources.visibility IN ('course', 'public')
     LEFT JOIN course_enrollments
         ON course_enrollments.course_id = courses.id
+        AND course_enrollments.tenant_id = courses.tenant_id
         AND course_enrollments.status = 'active'
     LEFT JOIN resource_progress
         ON resource_progress.resource_id = resources.id
+        AND resource_progress.tenant_id = courses.tenant_id
         AND resource_progress.user_id = course_enrollments.user_id
     WHERE courses.tenant_id = ?
     AND courses.instructor_id = ?

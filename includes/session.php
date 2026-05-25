@@ -31,7 +31,7 @@ function login_path()
     $script = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? ''));
     $script = trim($script, '/');
 
-    if (in_array(basename($script), ['admin', 'instructor', 'student'], true)) {
+    if (in_array(basename($script), ['admin', 'instructor', 'student', 'superadmin', 'realtime'], true)) {
         return '../login.php';
     }
 
@@ -54,8 +54,7 @@ function require_role($role)
 
     if (!in_array($_SESSION['role'], $roles, true)) {
         http_response_code(403);
-        header('Location: ' . login_path());
-        exit;
+        exit('Access denied.');
     }
 }
 

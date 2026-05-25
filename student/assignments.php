@@ -26,8 +26,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_assignment']))
     $stmt = $pdo->prepare("
         SELECT assignments.id, assignments.course_id
         FROM assignments
-        INNER JOIN courses ON courses.id = assignments.course_id
-        INNER JOIN course_enrollments ON course_enrollments.course_id = courses.id
+        INNER JOIN courses
+            ON courses.id = assignments.course_id
+            AND courses.tenant_id = assignments.tenant_id
+        INNER JOIN course_enrollments
+            ON course_enrollments.course_id = courses.id
+            AND course_enrollments.tenant_id = courses.tenant_id
         WHERE assignments.id = ?
         AND assignments.tenant_id = ?
         AND assignments.status = 'published'
@@ -93,9 +97,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_assignment']))
 $stmt = $pdo->prepare("
     SELECT assignments.*, courses.title AS course_title, assignment_submissions.id AS submission_id, assignment_submissions.status AS submission_status, assignment_submissions.grade, assignment_submissions.feedback, assignment_submissions.submitted_at
     FROM assignments
-    INNER JOIN courses ON courses.id = assignments.course_id
-    INNER JOIN course_enrollments ON course_enrollments.course_id = courses.id
-    LEFT JOIN assignment_submissions ON assignment_submissions.assignment_id = assignments.id AND assignment_submissions.student_id = ?
+    INNER JOIN courses
+        ON courses.id = assignments.course_id
+        AND courses.tenant_id = assignments.tenant_id
+    INNER JOIN course_enrollments
+        ON course_enrollments.course_id = courses.id
+        AND course_enrollments.tenant_id = courses.tenant_id
+    LEFT JOIN assignment_submissions
+        ON assignment_submissions.assignment_id = assignments.id
+        AND assignment_submissions.tenant_id = assignments.tenant_id
+        AND assignment_submissions.student_id = ?
     WHERE assignments.tenant_id = ?
     AND assignments.status = 'published'
     AND course_enrollments.tenant_id = ?

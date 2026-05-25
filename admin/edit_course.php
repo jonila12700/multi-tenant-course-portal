@@ -35,10 +35,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_course'])) {
 
     $title = trim($_POST['title'] ?? '');
     $description = trim($_POST['description'] ?? '');
-    $instructor_id = $_POST['instructor_id'] !== '' ? (int) $_POST['instructor_id'] : null;
+    $instructor_id = ($_POST['instructor_id'] ?? '') !== '' ? (int) $_POST['instructor_id'] : null;
     $visibility = $_POST['visibility'] ?? 'draft';
-    $start_date = $_POST['start_date'] !== '' ? $_POST['start_date'] : null;
-    $end_date = $_POST['end_date'] !== '' ? $_POST['end_date'] : null;
+    $start_date = ($_POST['start_date'] ?? '') !== '' ? $_POST['start_date'] : null;
+    $end_date = ($_POST['end_date'] ?? '') !== '' ? $_POST['end_date'] : null;
 
     if ($title === '') {
         $error = 'Course title is required.';

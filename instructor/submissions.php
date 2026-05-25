@@ -18,7 +18,7 @@ $assignment_id = (int) ($_GET['assignment_id'] ?? 0);
 $error = '';
 $success = '';
 
-$stmt = $pdo->prepare("SELECT assignments.*, courses.title AS course_title FROM assignments INNER JOIN courses ON courses.id = assignments.course_id WHERE assignments.id = ? AND assignments.tenant_id = ? AND courses.instructor_id = ? LIMIT 1");
+$stmt = $pdo->prepare("SELECT assignments.*, courses.title AS course_title FROM assignments INNER JOIN courses ON courses.id = assignments.course_id AND courses.tenant_id = assignments.tenant_id WHERE assignments.id = ? AND assignments.tenant_id = ? AND courses.instructor_id = ? LIMIT 1");
 $stmt->execute([$assignment_id, $tenant_id, $instructor_id]);
 $assignment = $stmt->fetch();
 
@@ -32,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['review_submission']))
 
     $submission_id = (int) ($_POST['submission_id'] ?? 0);
     $status = $_POST['status'] ?? 'reviewed';
-    $grade = $_POST['grade'] !== '' ? (float) $_POST['grade'] : null;
+    $grade = ($_POST['grade'] ?? '') !== '' ? (float) $_POST['grade'] : null;
     $feedback = trim($_POST['feedback'] ?? '');
 
     if (!in_array($status, ['submitted', 'reviewed', 'returned'], true)) {
@@ -49,7 +49,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['review_submission']))
 $stmt = $pdo->prepare("
     SELECT assignment_submissions.*, users.name AS student_name, users.email AS student_email
     FROM assignment_submissions
-    INNER JOIN users ON users.id = assignment_submissions.student_id
+    INNER JOIN users
+        ON users.id = assignment_submissions.student_id
+        AND users.tenant_id = assignment_submissions.tenant_id
     WHERE assignment_submissions.tenant_id = ?
     AND assignment_submissions.assignment_id = ?
     ORDER BY assignment_submissions.submitted_at DESC

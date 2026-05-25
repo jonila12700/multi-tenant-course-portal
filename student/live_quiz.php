@@ -23,8 +23,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_quiz'])) {
         $stmt = $pdo->prepare("
             SELECT live_quizzes.id
             FROM live_quizzes
-            INNER JOIN courses ON courses.id = live_quizzes.course_id
-            INNER JOIN course_enrollments ON course_enrollments.course_id = courses.id
+            INNER JOIN courses
+                ON courses.id = live_quizzes.course_id
+                AND courses.tenant_id = live_quizzes.tenant_id
+            INNER JOIN course_enrollments
+                ON course_enrollments.course_id = courses.id
+                AND course_enrollments.tenant_id = courses.tenant_id
             WHERE live_quizzes.id = ?
             AND live_quizzes.tenant_id = ?
             AND course_enrollments.user_id = ?
@@ -58,10 +62,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_quiz'])) {
 $stmt = $pdo->prepare("
     SELECT live_quizzes.*, courses.title AS course_title, live_quiz_responses.selected_option
     FROM live_quizzes
-    INNER JOIN courses ON courses.id = live_quizzes.course_id
-    INNER JOIN course_enrollments ON course_enrollments.course_id = courses.id
+    INNER JOIN courses
+        ON courses.id = live_quizzes.course_id
+        AND courses.tenant_id = live_quizzes.tenant_id
+    INNER JOIN course_enrollments
+        ON course_enrollments.course_id = courses.id
+        AND course_enrollments.tenant_id = courses.tenant_id
     LEFT JOIN live_quiz_responses
         ON live_quiz_responses.quiz_id = live_quizzes.id
+        AND live_quiz_responses.tenant_id = live_quizzes.tenant_id
         AND live_quiz_responses.user_id = ?
     WHERE live_quizzes.tenant_id = ?
     AND course_enrollments.tenant_id = ?

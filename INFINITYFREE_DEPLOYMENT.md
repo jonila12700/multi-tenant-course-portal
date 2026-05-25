@@ -4,7 +4,7 @@
 
 1. Create a MySQL database in the InfinityFree control panel.
 2. Import `courseportal_full_latest.sql` using phpMyAdmin.
-3. Import `courseportal_security_migration.sql` after the base import.
+3. Import `courseportal_security_migration.sql` only if you are upgrading an older database.
 4. Confirm tables include `password_resets` and tenant-scoped unique indexes.
 
 ## 2. Configuration
@@ -22,12 +22,13 @@
 Upload the project contents to the InfinityFree `htdocs` folder. Keep:
 
 - `.htaccess`
+- `config/.htaccess`
 - `uploads/.htaccess`
 - `uploads/.gitkeep`
 - `assets/`
 - `admin/`, `instructor/`, `student/`, `superadmin/`, `realtime/`, `includes/`, `config/`
 
-Do not publish old ZIP exports or unnecessary SQL dumps after setup.
+Do not publish old ZIP exports. Remove SQL files from `htdocs` after importing them in phpMyAdmin, or keep them blocked by `.htaccess` only while you are still deploying.
 
 ## 4. Permissions
 
@@ -49,6 +50,16 @@ Test these flows online:
 - Student progress toggle
 - Assignment submit/review
 - Responsive mobile layout
+
+## Demo Admin
+
+Use these credentials after importing the SQL:
+
+- Organization code: `demo-academy`
+- Email: `admin@test.com`
+- Password: `Admin12345`
+
+If the account already exists and the password is unknown, import `reset_admin_password.sql`.
 
 ## 6. Production Notes
 

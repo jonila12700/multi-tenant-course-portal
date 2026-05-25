@@ -1,10 +1,15 @@
 Options -Indexes
 
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^config/ - [F,L]
+</IfModule>
+
 <FilesMatch "^\.">
     Require all denied
 </FilesMatch>
 
-<FilesMatch "^(config|database)\.php$">
+<FilesMatch "^(config|database|local|local\.example|db)\.php$">
     Require all denied
 </FilesMatch>
 

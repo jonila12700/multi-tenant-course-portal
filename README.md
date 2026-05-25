@@ -28,7 +28,7 @@ Production-ready PHP/MySQL course management portal for schools, training teams,
 1. Copy the project into your web root, for example `C:\xampp\htdocs\MultiTentant`.
 2. Create a MySQL database.
 3. Import `courseportal_full_latest.sql`.
-4. Run `courseportal_security_migration.sql`.
+4. Optionally run `courseportal_security_migration.sql` for older deployments.
 5. Copy `config/local.example.php` to `config/local.php`.
 6. Update database credentials in `config/local.php`.
 7. Open `http://localhost/MultiTentant`.
@@ -38,12 +38,24 @@ Production-ready PHP/MySQL course management portal for schools, training teams,
 For InfinityFree:
 
 1. Create a MySQL database in InfinityFree control panel.
-2. Import the base SQL and security migration in phpMyAdmin.
-3. Upload project files through FTP.
-4. Keep `config/local.php` on the server only and never commit it.
-5. Ensure `uploads/` is writable.
-6. Verify `.htaccess` is uploaded and Apache rules are enabled.
-7. Test login, registration, file downloads, password reset, dashboards, and tenant isolation.
+2. Import `courseportal_full_latest.sql` in phpMyAdmin.
+3. If you already had an older database, import `courseportal_security_migration.sql` too.
+4. Upload project files through FTP.
+5. Keep `config/local.php` on the server only and never commit it.
+6. Ensure `uploads/` is writable.
+7. Verify `.htaccess` and `config/.htaccess` are uploaded.
+8. Delete ZIP archives from `htdocs` after upload and remove SQL files after import if you do not need them on the server.
+9. Test login, registration, file downloads, password reset, dashboards, and tenant isolation.
+
+## Demo Admin Login
+
+After importing `courseportal_full_latest.sql`, the demo tenant admin is:
+
+- Organization code: `demo-academy`
+- Email: `admin@test.com`
+- Password: `Admin12345`
+
+If that user already existed with a different password, import `reset_admin_password.sql`.
 
 ## Environment
 

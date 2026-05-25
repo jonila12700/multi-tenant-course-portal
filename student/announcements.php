@@ -10,9 +10,15 @@ $user_id = (int) $_SESSION['user_id'];
 $stmt = $pdo->prepare("
     SELECT course_announcements.*, courses.title AS course_title, users.name AS professor_name
     FROM course_announcements
-    INNER JOIN courses ON courses.id = course_announcements.course_id
-    INNER JOIN course_enrollments ON course_enrollments.course_id = courses.id
-    LEFT JOIN users ON users.id = course_announcements.created_by
+    INNER JOIN courses
+        ON courses.id = course_announcements.course_id
+        AND courses.tenant_id = course_announcements.tenant_id
+    INNER JOIN course_enrollments
+        ON course_enrollments.course_id = courses.id
+        AND course_enrollments.tenant_id = courses.tenant_id
+    LEFT JOIN users
+        ON users.id = course_announcements.created_by
+        AND users.tenant_id = course_announcements.tenant_id
     WHERE course_announcements.tenant_id = ?
     AND course_enrollments.tenant_id = ?
     AND course_enrollments.user_id = ?
@@ -49,7 +55,7 @@ $announcements = $stmt->fetchAll();
                                 </div>
                                 <small class="text-muted">
                                     <?php echo htmlspecialchars($announcement['course_title']); ?>
-                                    · <?php echo htmlspecialchars($announcement['professor_name'] ?? 'Professor'); ?>
+                                    - <?php echo htmlspecialchars($announcement['professor_name'] ?? 'Professor'); ?>
                                 </small>
                                 <p class="mb-0 mt-2"><?php echo nl2br(htmlspecialchars($announcement['body'])); ?></p>
                             </div>

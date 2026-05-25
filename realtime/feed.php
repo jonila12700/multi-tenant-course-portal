@@ -16,7 +16,9 @@ try {
     $stmt = $pdo->prepare("
         SELECT users.name, users.role, user_presence.current_page, user_presence.last_seen
         FROM user_presence
-        INNER JOIN users ON users.id = user_presence.user_id
+        INNER JOIN users
+            ON users.id = user_presence.user_id
+            AND users.tenant_id = user_presence.tenant_id
         WHERE user_presence.tenant_id = ?
         AND user_presence.last_seen >= (NOW() - INTERVAL 2 MINUTE)
         ORDER BY user_presence.last_seen DESC
@@ -39,7 +41,9 @@ try {
     $stmt = $pdo->prepare("
         SELECT portal_activity.action, portal_activity.description, portal_activity.created_at, users.name
         FROM portal_activity
-        LEFT JOIN users ON users.id = portal_activity.user_id
+        LEFT JOIN users
+            ON users.id = portal_activity.user_id
+            AND users.tenant_id = portal_activity.tenant_id
         WHERE portal_activity.tenant_id = ?
         ORDER BY portal_activity.created_at DESC
         LIMIT 8
@@ -50,7 +54,9 @@ try {
     $stmt = $pdo->prepare("
         SELECT realtime_messages.body, realtime_messages.created_at, users.name AS sender_name
         FROM realtime_messages
-        INNER JOIN users ON users.id = realtime_messages.sender_id
+        INNER JOIN users
+            ON users.id = realtime_messages.sender_id
+            AND users.tenant_id = realtime_messages.tenant_id
         WHERE realtime_messages.tenant_id = ?
         AND (realtime_messages.receiver_id IS NULL OR realtime_messages.receiver_id = ? OR realtime_messages.sender_id = ?)
         ORDER BY realtime_messages.created_at DESC

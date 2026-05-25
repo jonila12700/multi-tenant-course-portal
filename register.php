@@ -21,6 +21,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         $slug = normalize_slug($tenant_name);
 
+        if ($slug === '') {
+            $error = 'Organization name must contain letters or numbers.';
+        }
+
+        if ($error === '') {
         try {
             $pdo->beginTransaction();
 
@@ -66,6 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } else {
                 $error = 'Registration failed. Please try again.';
             }
+        }
         }
     }
 }

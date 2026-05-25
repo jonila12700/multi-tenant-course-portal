@@ -24,8 +24,12 @@ $stmt = $pdo->prepare("
         courses.end_date,
         users.name AS instructor_name
     FROM courses
-    INNER JOIN course_enrollments ON course_enrollments.course_id = courses.id
-    LEFT JOIN users ON users.id = courses.instructor_id
+    INNER JOIN course_enrollments
+        ON course_enrollments.course_id = courses.id
+        AND course_enrollments.tenant_id = courses.tenant_id
+    LEFT JOIN users
+        ON users.id = courses.instructor_id
+        AND users.tenant_id = courses.tenant_id
     WHERE courses.tenant_id = ?
     AND course_enrollments.tenant_id = ?
     AND course_enrollments.user_id = ?

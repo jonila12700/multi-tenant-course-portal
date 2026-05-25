@@ -5,7 +5,7 @@ function app_base_path()
     $script = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? ''));
     $script = trim($script, '/');
 
-    if (in_array(basename($script), ['admin', 'instructor', 'student'], true)) {
+    if (in_array(basename($script), ['admin', 'instructor', 'student', 'superadmin', 'realtime'], true)) {
         return '..';
     }
 

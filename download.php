@@ -20,7 +20,9 @@ if ($resource_id <= 0) {
 $stmt = $pdo->prepare("
     SELECT resources.*, courses.instructor_id
     FROM resources
-    INNER JOIN courses ON courses.id = resources.course_id
+    INNER JOIN courses
+        ON courses.id = resources.course_id
+        AND courses.tenant_id = resources.tenant_id
     WHERE resources.id = ?
     AND resources.tenant_id = ?
     LIMIT 1

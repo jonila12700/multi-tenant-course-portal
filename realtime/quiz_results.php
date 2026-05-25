@@ -12,7 +12,9 @@ $quiz_id = (int) ($_GET['quiz_id'] ?? 0);
 $stmt = $pdo->prepare("
     SELECT live_quizzes.*
     FROM live_quizzes
-    INNER JOIN courses ON courses.id = live_quizzes.course_id
+    INNER JOIN courses
+        ON courses.id = live_quizzes.course_id
+        AND courses.tenant_id = live_quizzes.tenant_id
     WHERE live_quizzes.id = ?
     AND live_quizzes.tenant_id = ?
     AND (

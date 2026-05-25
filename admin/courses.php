@@ -55,8 +55,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_course'])) {
     $description = trim($_POST['description'] ?? '');
     $instructor_id = $_POST['instructor_id'] ?? null;
     $visibility = $_POST['visibility'] ?? 'draft';
-    $start_date = $_POST['start_date'] ?: null;
-    $end_date = $_POST['end_date'] ?: null;
+    $start_date = ($_POST['start_date'] ?? '') !== '' ? $_POST['start_date'] : null;
+    $end_date = ($_POST['end_date'] ?? '') !== '' ? $_POST['end_date'] : null;
 
     if ($title === '') {
         $error = 'Course title is required.';
@@ -95,7 +95,9 @@ $stmt = $pdo->prepare("
         courses.created_at,
         users.name AS instructor_name
     FROM courses
-    LEFT JOIN users ON users.id = courses.instructor_id
+    LEFT JOIN users
+        ON users.id = courses.instructor_id
+        AND users.tenant_id = courses.tenant_id
     WHERE courses.tenant_id = ?
     ORDER BY courses.created_at DESC
 ");

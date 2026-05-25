@@ -125,8 +125,12 @@ $stmt = $pdo->prepare("
         users.email AS student_email,
         courses.title AS course_title
     FROM course_enrollments
-    INNER JOIN users ON users.id = course_enrollments.user_id
-    INNER JOIN courses ON courses.id = course_enrollments.course_id
+    INNER JOIN users
+        ON users.id = course_enrollments.user_id
+        AND users.tenant_id = course_enrollments.tenant_id
+    INNER JOIN courses
+        ON courses.id = course_enrollments.course_id
+        AND courses.tenant_id = course_enrollments.tenant_id
     WHERE course_enrollments.tenant_id = ?
     ORDER BY course_enrollments.enrolled_at DESC
 ");

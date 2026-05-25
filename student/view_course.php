@@ -25,8 +25,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['toggle_complete'])) {
     $stmt = $pdo->prepare("
         SELECT resources.id
         FROM resources
-        INNER JOIN courses ON courses.id = resources.course_id
-        INNER JOIN course_enrollments ON course_enrollments.course_id = courses.id
+        INNER JOIN courses
+            ON courses.id = resources.course_id
+            AND courses.tenant_id = resources.tenant_id
+        INNER JOIN course_enrollments
+            ON course_enrollments.course_id = courses.id
+            AND course_enrollments.tenant_id = courses.tenant_id
         WHERE resources.id = ?
         AND resources.tenant_id = ?
         AND course_enrollments.user_id = ?
@@ -74,8 +78,12 @@ $stmt = $pdo->prepare("
         courses.description,
         users.name AS instructor_name
     FROM courses
-    INNER JOIN course_enrollments ON course_enrollments.course_id = courses.id
-    LEFT JOIN users ON users.id = courses.instructor_id
+    INNER JOIN course_enrollments
+        ON course_enrollments.course_id = courses.id
+        AND course_enrollments.tenant_id = courses.tenant_id
+    LEFT JOIN users
+        ON users.id = courses.instructor_id
+        AND users.tenant_id = courses.tenant_id
     WHERE courses.id = ?
     AND courses.tenant_id = ?
     AND course_enrollments.tenant_id = ?
