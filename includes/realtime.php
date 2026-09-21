@@ -53,9 +53,12 @@ function notify_user(PDO $pdo, int $user_id, string $title, string $body = '', s
     try {
         $stmt = $pdo->prepare("
             INSERT INTO notifications (tenant_id, user_id, title, body, type)
-            VALUES (?, ?, ?, ?, ?)
+            SELECT users.tenant_id, users.id, ?, ?, ?
+            FROM users
+            WHERE users.id = ?
+            AND users.tenant_id = ?
         ");
-        $stmt->execute([(int) $_SESSION['tenant_id'], $user_id, $title, $body, $type]);
+        $stmt->execute([$title, $body, $type, $user_id, (int) $_SESSION['tenant_id']]);
     } catch (PDOException $e) {
         return;
     }
@@ -86,11 +89,19 @@ function notify_enrolled_students(PDO $pdo, int $course_id, string $title, strin
 
     try {
         $stmt = $pdo->prepare("
-            SELECT user_id
+            SELECT course_enrollments.user_id
             FROM course_enrollments
-            WHERE tenant_id = ?
-            AND course_id = ?
-            AND status = 'active'
+            INNER JOIN courses
+                ON courses.id = course_enrollments.course_id
+                AND courses.tenant_id = course_enrollments.tenant_id
+            INNER JOIN users
+                ON users.id = course_enrollments.user_id
+                AND users.tenant_id = course_enrollments.tenant_id
+            WHERE course_enrollments.tenant_id = ?
+            AND course_enrollments.course_id = ?
+            AND course_enrollments.status = 'active'
+            AND users.role = 'student'
+            AND users.status = 'active'
         ");
         $stmt->execute([(int) $_SESSION['tenant_id'], $course_id]);
 

@@ -2,15 +2,7 @@
 include "../includes/session.php";
 include "../config/db.php";
 
-if (!isset($_SESSION['user_id'], $_SESSION['tenant_id'], $_SESSION['role'])) {
-    header("Location: ../login.php");
-    exit();
-}
-
-if ($_SESSION['role'] !== 'tenant_admin') {
-    header("Location: ../login.php");
-    exit();
-}
+require_role('tenant_admin');
 
 $tenant_id = (int) $_SESSION['tenant_id'];
 $error = '';
@@ -58,11 +50,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_course'])) {
     $start_date = ($_POST['start_date'] ?? '') !== '' ? $_POST['start_date'] : null;
     $end_date = ($_POST['end_date'] ?? '') !== '' ? $_POST['end_date'] : null;
 
+    $allowed_visibility = ['draft', 'published', 'archived'];
+    $instructor_id = $instructor_id !== '' ? (int) $instructor_id : null;
+
     if ($title === '') {
         $error = 'Course title is required.';
-    } else {
-        $instructor_id = $instructor_id !== '' ? (int) $instructor_id : null;
+    } elseif (!in_array($visibility, $allowed_visibility, true)) {
+        $error = 'Invalid course status.';
+    } elseif ($instructor_id !== null) {
+        $stmt = $pdo->prepare("SELECT id FROM users WHERE id = ? AND tenant_id = ? AND role = 'instructor' AND status = 'active' LIMIT 1");
+        $stmt->execute([$instructor_id, $tenant_id]);
+        if (!$stmt->fetch()) {
+            $error = 'Invalid instructor selected.';
+        }
+    }
 
+    if ($error === '') {
         $stmt = $pdo->prepare("
             INSERT INTO courses
                 (tenant_id, instructor_id, title, description, visibility, start_date, end_date)

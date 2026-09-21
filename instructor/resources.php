@@ -2,15 +2,7 @@
 include "../includes/session.php";
 include "../config/db.php";
 
-if (!isset($_SESSION['user_id'], $_SESSION['tenant_id'], $_SESSION['role'])) {
-    header("Location: ../login.php");
-    exit();
-}
-
-if ($_SESSION['role'] !== 'instructor') {
-    header("Location: ../login.php");
-    exit();
-}
+require_role('instructor');
 
 $tenant_id = (int) $_SESSION['tenant_id'];
 $instructor_id = (int) $_SESSION['user_id'];
