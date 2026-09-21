@@ -43,8 +43,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $reset) {
         $stmt = $pdo->prepare("UPDATE users SET password_hash = ? WHERE id = ? AND tenant_id = ?");
         $stmt->execute([password_hash($password, PASSWORD_DEFAULT), (int) $reset['user_id'], (int) $reset['tenant_id']]);
 
-        $stmt = $pdo->prepare("UPDATE password_resets SET used_at = NOW() WHERE id = ?");
-        $stmt->execute([(int) $reset['id']]);
+        $stmt = $pdo->prepare("UPDATE password_resets SET used_at = NOW() WHERE id = ? AND tenant_id = ? AND user_id = ? AND used_at IS NULL");
+        $stmt->execute([(int) $reset['id'], (int) $reset['tenant_id'], (int) $reset['user_id']]);
 
         $pdo->commit();
         $success = 'Password updated. You can now sign in.';

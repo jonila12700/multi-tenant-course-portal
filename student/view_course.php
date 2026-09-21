@@ -3,15 +3,7 @@ include "../includes/session.php";
 include "../config/db.php";
 include "../includes/realtime.php";
 
-if (!isset($_SESSION['user_id'], $_SESSION['tenant_id'], $_SESSION['role'])) {
-    header("Location: ../login.php");
-    exit();
-}
-
-if ($_SESSION['role'] !== 'student') {
-    header("Location: ../login.php");
-    exit();
-}
+require_role('student');
 
 $tenant_id = (int) $_SESSION['tenant_id'];
 $user_id = (int) $_SESSION['user_id'];
@@ -33,11 +25,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['toggle_complete'])) {
             AND course_enrollments.tenant_id = courses.tenant_id
         WHERE resources.id = ?
         AND resources.tenant_id = ?
+        AND courses.id = ?
+        AND course_enrollments.tenant_id = ?
         AND course_enrollments.user_id = ?
         AND course_enrollments.status = 'active'
         LIMIT 1
     ");
-    $stmt->execute([$resource_id, $tenant_id, $user_id]);
+    $stmt->execute([$resource_id, $tenant_id, $course_id, $tenant_id, $user_id]);
     $resource = $stmt->fetch();
 
     if ($resource) {

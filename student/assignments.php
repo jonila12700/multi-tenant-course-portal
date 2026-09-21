@@ -2,15 +2,7 @@
 include "../includes/session.php";
 include "../config/db.php";
 
-if (!isset($_SESSION['user_id'], $_SESSION['tenant_id'], $_SESSION['role'])) {
-    header("Location: ../login.php");
-    exit;
-}
-
-if ($_SESSION['role'] !== 'student') {
-    header("Location: ../login.php");
-    exit;
-}
+require_role('student');
 
 $tenant_id = (int) $_SESSION['tenant_id'];
 $student_id = (int) $_SESSION['user_id'];
@@ -45,7 +37,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_assignment']))
 
     if (!$assignment) {
         $error = 'Invalid assignment selected.';
-    } elseif (!isset($_FILES['submission_file']) || $_FILES['submission_file']['error'] !== UPLOAD_ERR_OK) {
+    } elseif (!isset($_FILES['submission_file']) || $_FILES['submission_file']['error'] !== UPLOAD_ERR_OK
+        || !is_uploaded_file($_FILES['submission_file']['tmp_name'])) {
         $error = 'Please upload a valid file.';
     } else {
         $allowed_extensions = ['pdf', 'doc', 'docx', 'txt', 'zip'];
@@ -58,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_assignment']))
             'application/x-zip-compressed',
         ];
         $max_file_size = 10 * 1024 * 1024;
-        $original_name = basename($_FILES['submission_file']['name']);
+        $original_name = preg_replace('/[\x00-\x1F\x7F]+/', '', basename($_FILES['submission_file']['name']));
         $extension = strtolower(pathinfo($original_name, PATHINFO_EXTENSION));
         $file_size = (int) $_FILES['submission_file']['size'];
         $detected_mime = mime_content_type($_FILES['submission_file']['tmp_name']);

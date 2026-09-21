@@ -2,10 +2,7 @@
 include 'includes/session.php';
 include 'config/db.php';
 
-if (!isset($_SESSION['user_id'], $_SESSION['tenant_id'], $_SESSION['role'])) {
-    header('Location: login.php');
-    exit;
-}
+require_role(['tenant_admin', 'instructor', 'student']);
 
 $submission_id = (int) ($_GET['id'] ?? 0);
 $tenant_id = (int) $_SESSION['tenant_id'];
@@ -54,8 +51,12 @@ if (!$full_path || !$upload_root || strpos($full_path, $upload_root . DIRECTORY_
     exit('File missing.');
 }
 
+$download_name = preg_replace('/[^A-Za-z0-9._ -]/', '_', basename($submission['original_name']));
+if ($download_name === '') {
+    $download_name = 'submission';
+}
 header('Content-Type: ' . ($submission['mime_type'] ?: 'application/octet-stream'));
-header('Content-Disposition: attachment; filename="' . basename($submission['original_name']) . '"');
+header('Content-Disposition: attachment; filename="' . $download_name . '"');
 header('Content-Length: ' . filesize($full_path));
 header('X-Content-Type-Options: nosniff');
 readfile($full_path);

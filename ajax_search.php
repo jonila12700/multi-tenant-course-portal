@@ -4,11 +4,7 @@ include 'config/db.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
-if (!isset($_SESSION['user_id'], $_SESSION['tenant_id'], $_SESSION['role'])) {
-    http_response_code(401);
-    echo json_encode(['error' => 'Unauthorized']);
-    exit;
-}
+require_role(['tenant_admin', 'instructor', 'student']);
 
 $tenant_id = (int) $_SESSION['tenant_id'];
 $user_id = (int) $_SESSION['user_id'];

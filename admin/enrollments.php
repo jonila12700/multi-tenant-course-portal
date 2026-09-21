@@ -3,15 +3,7 @@ include "../includes/session.php";
 include "../config/db.php";
 include "../includes/realtime.php";
 
-if (!isset($_SESSION['user_id'], $_SESSION['tenant_id'], $_SESSION['role'])) {
-    header("Location: ../login.php");
-    exit();
-}
-
-if ($_SESSION['role'] !== 'tenant_admin') {
-    header("Location: ../login.php");
-    exit();
-}
+require_role('tenant_admin');
 
 $tenant_id = (int) $_SESSION['tenant_id'];
 $error = '';

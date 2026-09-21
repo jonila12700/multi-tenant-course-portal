@@ -3,15 +3,7 @@ include "../includes/session.php";
 include "../config/db.php";
 include "../includes/realtime.php";
 
-if (!isset($_SESSION['user_id'], $_SESSION['tenant_id'], $_SESSION['role'])) {
-    header("Location: ../login.php");
-    exit();
-}
-
-if ($_SESSION['role'] !== 'instructor') {
-    header("Location: ../login.php");
-    exit();
-}
+require_role('instructor');
 
 $tenant_id = (int) $_SESSION['tenant_id'];
 $instructor_id = (int) $_SESSION['user_id'];
@@ -84,7 +76,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $file_size = null;
 
             if ($type === 'file') {
-                if (!isset($_FILES['resource_file']) || $_FILES['resource_file']['error'] !== UPLOAD_ERR_OK) {
+                if (!isset($_FILES['resource_file']) || $_FILES['resource_file']['error'] !== UPLOAD_ERR_OK
+                    || !is_uploaded_file($_FILES['resource_file']['tmp_name'])) {
                     $error = 'Please upload a valid file.';
                 } else {
                     $original_name = basename($_FILES['resource_file']['name']);
